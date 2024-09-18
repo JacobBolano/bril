@@ -1,0 +1,150 @@
+DEBUG:root:{'c', 'd', 'a', 'b'}
+DEBUG:root:we are looking at {'dest': 'a', 'op': 'const', 'type': 'int', 'value': 4}
+DEBUG:root:we are looking at {'dest': 'b', 'op': 'const', 'type': 'int', 'value': 2}
+DEBUG:root:we are looking at {'dest': 'c', 'op': 'const', 'type': 'int', 'value': 1}
+DEBUG:root:we are looking at {'args': ['a', 'b'], 'dest': 'd', 'op': 'add', 'type': 'int'}
+DEBUG:root:we are looking at {'args': ['c', 'd'], 'dest': 'e', 'op': 'add', 'type': 'int'}
+DEBUG:root:we are looking at {'args': ['d'], 'op': 'print'}
+DEBUG:root:we are looking at {'dest': 'a', 'op': 'const', 'type': 'int', 'value': 4}
+DEBUG:root:we are looking at {'dest': 'b', 'op': 'const', 'type': 'int', 'value': 2}
+DEBUG:root:we are looking at {'dest': 'c', 'op': 'const', 'type': 'int', 'value': 1}
+DEBUG:root:we are looking at {'args': ['a', 'b'], 'dest': 'd', 'op': 'add', 'type': 'int'}
+DEBUG:root:we are looking at {'args': ['d'], 'op': 'print'}
+DEBUG:root:{'c', 'd', 'b', 'a'}
+DEBUG:root:we are looking at {'dest': 'a', 'op': 'const', 'type': 'int', 'value': 4}
+DEBUG:root:we are looking at {'dest': 'b', 'op': 'const', 'type': 'int', 'value': 2}
+DEBUG:root:we are looking at {'dest': 'c', 'op': 'const', 'type': 'int', 'value': 1}
+DEBUG:root:we are looking at {'args': ['a', 'b'], 'dest': 'd', 'op': 'add', 'type': 'int'}
+DEBUG:root:we are looking at {'args': ['c', 'd'], 'dest': 'e', 'op': 'add', 'type': 'int'}
+DEBUG:root:we are looking at {'args': ['d'], 'op': 'print'}
+DEBUG:root:{'d', 'b', 'a'}
+DEBUG:root:we are looking at {'dest': 'a', 'op': 'const', 'type': 'int', 'value': 4}
+DEBUG:root:we are looking at {'dest': 'b', 'op': 'const', 'type': 'int', 'value': 2}
+DEBUG:root:we are looking at {'dest': 'c', 'op': 'const', 'type': 'int', 'value': 1}
+DEBUG:root:we are looking at {'args': ['a', 'b'], 'dest': 'd', 'op': 'add', 'type': 'int'}
+DEBUG:root:we are looking at {'args': ['d'], 'op': 'print'}
+DEBUG:root:{'d', 'b', 'a'}
+DEBUG:root:we are looking at {'dest': 'a', 'op': 'const', 'type': 'int', 'value': 4}
+DEBUG:root:we are looking at {'dest': 'b', 'op': 'const', 'type': 'int', 'value': 2}
+DEBUG:root:we are looking at {'args': ['a', 'b'], 'dest': 'd', 'op': 'add', 'type': 'int'}
+DEBUG:root:we are looking at {'args': ['d'], 'op': 'print'}
+DEBUG:root:dest: a
+DEBUG:root:unused current state: {}
+DEBUG:root:dest: b
+DEBUG:root:unused current state: {'a': 0}
+DEBUG:root:dest: c
+DEBUG:root:unused current state: {'a': 0, 'b': 1}
+DEBUG:root:dest: d
+DEBUG:root:unused current state: {'c': 2}
+DEBUG:root:dest: e
+DEBUG:root:unused current state: {}
+DEBUG:root:dest: None
+DEBUG:root:{'c', 'a', 'b', 'd'}
+DEBUG:root:we are looking at {'dest': 'a', 'op': 'const', 'type': 'int', 'value': 4}
+DEBUG:root:we are looking at {'dest': 'b', 'op': 'const', 'type': 'int', 'value': 2}
+DEBUG:root:we are looking at {'dest': 'c', 'op': 'const', 'type': 'int', 'value': 1}
+DEBUG:root:we are looking at {'args': ['a', 'b'], 'dest': 'd', 'op': 'add', 'type': 'int'}
+DEBUG:root:we are looking at {'args': ['c', 'd'], 'dest': 'e', 'op': 'add', 'type': 'int'}
+DEBUG:root:we are looking at {'args': ['d'], 'op': 'print'}
+DEBUG:root:{'a', 'b', 'd'}
+DEBUG:root:we are looking at {'dest': 'a', 'op': 'const', 'type': 'int', 'value': 4}
+DEBUG:root:we are looking at {'dest': 'b', 'op': 'const', 'type': 'int', 'value': 2}
+DEBUG:root:we are looking at {'dest': 'c', 'op': 'const', 'type': 'int', 'value': 1}
+DEBUG:root:we are looking at {'args': ['a', 'b'], 'dest': 'd', 'op': 'add', 'type': 'int'}
+DEBUG:root:we are looking at {'args': ['d'], 'op': 'print'}
+DEBUG:root:{'a', 'b', 'd'}
+DEBUG:root:we are looking at {'dest': 'a', 'op': 'const', 'type': 'int', 'value': 4}
+DEBUG:root:we are looking at {'dest': 'b', 'op': 'const', 'type': 'int', 'value': 2}
+DEBUG:root:we are looking at {'args': ['a', 'b'], 'dest': 'd', 'op': 'add', 'type': 'int'}
+DEBUG:root:we are looking at {'args': ['d'], 'op': 'print'}
+DEBUG:root:dest: a
+DEBUG:root:unused current state: {}
+DEBUG:root:dest: b
+DEBUG:root:unused current state: {'a': 0}
+DEBUG:root:dest: c
+DEBUG:root:unused current state: {}
+DEBUG:root:dest: b
+DEBUG:root:unused current state: {'c': 2}
+DEBUG:root:dest: d
+DEBUG:root:unused current state: {'c': 2}
+DEBUG:root:dest: None
+DEBUG:root:{'b', 'a', 'd'}
+DEBUG:root:we are looking at {'dest': 'a', 'op': 'const', 'type': 'int', 'value': 1}
+DEBUG:root:we are looking at {'dest': 'b', 'op': 'const', 'type': 'int', 'value': 2}
+DEBUG:root:we are looking at {'args': ['a', 'b'], 'dest': 'c', 'op': 'add', 'type': 'int'}
+DEBUG:root:we are looking at {'dest': 'b', 'op': 'const', 'type': 'int', 'value': 3}
+DEBUG:root:we are looking at {'args': ['a', 'b'], 'dest': 'd', 'op': 'add', 'type': 'int'}
+DEBUG:root:we are looking at {'args': ['d'], 'op': 'print'}
+DEBUG:root:{'b', 'a', 'd'}
+DEBUG:root:we are looking at {'dest': 'a', 'op': 'const', 'type': 'int', 'value': 1}
+DEBUG:root:we are looking at {'dest': 'b', 'op': 'const', 'type': 'int', 'value': 2}
+DEBUG:root:we are looking at {'dest': 'b', 'op': 'const', 'type': 'int', 'value': 3}
+DEBUG:root:we are looking at {'args': ['a', 'b'], 'dest': 'd', 'op': 'add', 'type': 'int'}
+DEBUG:root:we are looking at {'args': ['d'], 'op': 'print'}
+DEBUG:root:dest: a
+DEBUG:root:unused current state: {}
+DEBUG:root:dest: b
+DEBUG:root:unused current state: {'a': 0}
+DEBUG:root:dest: c
+DEBUG:root:unused current state: {}
+DEBUG:root:dest: b
+DEBUG:root:unused current state: {'c': 2}
+DEBUG:root:dest: d
+DEBUG:root:unused current state: {'c': 2}
+DEBUG:root:dest: None
+DEBUG:root:{'b', 'd', 'a'}
+DEBUG:root:we are looking at {'dest': 'a', 'op': 'const', 'type': 'int', 'value': 1}
+DEBUG:root:we are looking at {'dest': 'b', 'op': 'const', 'type': 'int', 'value': 2}
+DEBUG:root:we are looking at {'args': ['a', 'b'], 'dest': 'c', 'op': 'add', 'type': 'int'}
+DEBUG:root:we are looking at {'dest': 'b', 'op': 'const', 'type': 'int', 'value': 3}
+DEBUG:root:we are looking at {'args': ['a', 'b'], 'dest': 'd', 'op': 'add', 'type': 'int'}
+DEBUG:root:we are looking at {'args': ['d'], 'op': 'print'}
+DEBUG:root:{'b', 'd', 'a'}
+DEBUG:root:we are looking at {'dest': 'a', 'op': 'const', 'type': 'int', 'value': 1}
+DEBUG:root:we are looking at {'dest': 'b', 'op': 'const', 'type': 'int', 'value': 2}
+DEBUG:root:we are looking at {'dest': 'b', 'op': 'const', 'type': 'int', 'value': 3}
+DEBUG:root:we are looking at {'args': ['a', 'b'], 'dest': 'd', 'op': 'add', 'type': 'int'}
+DEBUG:root:we are looking at {'args': ['d'], 'op': 'print'}
+DEBUG:root:{'d', 'b', 'a'}
+DEBUG:root:we are looking at {'dest': 'a', 'op': 'const', 'type': 'int', 'value': 1}
+DEBUG:root:we are looking at {'dest': 'b', 'op': 'const', 'type': 'int', 'value': 2}
+DEBUG:root:we are looking at {'args': ['a', 'b'], 'dest': 'c', 'op': 'add', 'type': 'int'}
+DEBUG:root:we are looking at {'dest': 'b', 'op': 'const', 'type': 'int', 'value': 3}
+DEBUG:root:we are looking at {'args': ['a', 'b'], 'dest': 'd', 'op': 'add', 'type': 'int'}
+DEBUG:root:we are looking at {'args': ['d'], 'op': 'print'}
+DEBUG:root:{'d', 'b', 'a'}
+DEBUG:root:we are looking at {'dest': 'a', 'op': 'const', 'type': 'int', 'value': 1}
+DEBUG:root:we are looking at {'dest': 'b', 'op': 'const', 'type': 'int', 'value': 2}
+DEBUG:root:we are looking at {'dest': 'b', 'op': 'const', 'type': 'int', 'value': 3}
+DEBUG:root:we are looking at {'args': ['a', 'b'], 'dest': 'd', 'op': 'add', 'type': 'int'}
+DEBUG:root:we are looking at {'args': ['d'], 'op': 'print'}
+DEBUG:root:dest: a
+DEBUG:root:unused current state: {}
+DEBUG:root:dest: b
+DEBUG:root:unused current state: {'a': 0}
+DEBUG:root:dest: b
+DEBUG:root:unused current state: {'a': 0, 'b': 1}
+DEBUG:root:unused to remove 1
+DEBUG:root:dest: d
+DEBUG:root:unused current state: {}
+DEBUG:root:dest: None
+DEBUG:root:dest: a
+DEBUG:root:unused current state: {}
+DEBUG:root:dest: b
+DEBUG:root:unused current state: {'a': 0}
+DEBUG:root:dest: d
+DEBUG:root:unused current state: {}
+DEBUG:root:dest: None
+DEBUG:root:{'a'}
+DEBUG:root:we are looking at {'dest': 'a', 'op': 'const', 'type': 'int', 'value': 100}
+DEBUG:root:we are looking at {'dest': 'a', 'op': 'const', 'type': 'int', 'value': 42}
+DEBUG:root:we are looking at {'args': ['a'], 'op': 'print'}
+DEBUG:root:dest: a
+DEBUG:root:unused current state: {}
+DEBUG:root:dest: a
+DEBUG:root:unused current state: {'a': 0}
+DEBUG:root:unused to remove 0
+DEBUG:root:dest: None
+DEBUG:root:dest: a
+DEBUG:root:unused current state: {}
+DEBUG:root:dest: None

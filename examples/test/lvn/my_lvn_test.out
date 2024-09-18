@@ -1,0 +1,4 @@
+@main() {
+  e: const 154;
+  print e;
+}

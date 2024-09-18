@@ -1,4 +1,4 @@
-benchmarks = '../examples/test/tdce/*.bril'
+benchmarks = '../examples/test/lvn/*.bril'
 extract = 'total_dyn_inst: (\d+)'
 
 [runs.baseline]
@@ -7,9 +7,44 @@ pipeline = [
   "brili -p {args}",
 ]
 
-[runs.ldce]
+[runs.trivial_dce]
 pipeline = [
   "bril2json",
-  "python3 ../examples/trivial/local_dce.py",
+  "python3 ../examples/my_solution/trivial_dce.py",
+  "brili -p {args}",
+]
+
+[runs.local_dce]
+pipeline = [
+  "bril2json",
+  "python3 ../examples/my_solution/local_dce.py",
+  "brili -p {args}",
+]
+
+[runs.both_dead_codes]
+pipeline = [
+  "bril2json",
+  "python3 ../examples/my_solution/trivial_dce.py",
+  "python3 ../examples/my_solution/local_dce.py",
+  "brili -p {args}",
+]
+
+[runs.dce_to_lvn]
+pipeline = [
+  "bril2json",
+  "python3 ../examples/my_solution/trivial_dce.py",
+  "python3 ../examples/my_solution/local_dce.py",
+  "python3 ../examples/my_solution/local_vn.py",
+  "brili -p {args}",
+]
+
+[runs.dce_to_lvn_to_dce]
+pipeline = [
+  "bril2json",
+  "python3 ../examples/my_solution/trivial_dce.py",
+  "python3 ../examples/my_solution/local_dce.py",
+  "python3 ../examples/my_solution/local_vn.py",
+  "python3 ../examples/my_solution/trivial_dce.py",
+  "python3 ../examples/my_solution/local_dce.py",
   "brili -p {args}",
 ]
