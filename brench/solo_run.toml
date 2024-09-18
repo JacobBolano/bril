@@ -1,0 +1,16 @@
+benchmarks = '../examples/test/tdce/*.bril'
+extract = 'total_dyn_inst: (\d+)'
+
+[runs.baseline]
+pipeline = [
+  "bril2json",
+  "brili -p {args}",
+]
+
+[runs.trivial_then_local]
+pipeline = [
+  "bril2json",
+  "python3 ../examples/my_solution/trivial_dce.py",
+  "python3 ../examples/my_solution/local_dce.py",
+  "brili -p {args}",
+]

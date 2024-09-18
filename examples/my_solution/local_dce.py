@@ -2,7 +2,7 @@ import json
 import sys
 import logging
 
-logging.basicConfig(filename='debug.log', level=logging.DEBUG)
+#logging.basicConfig(filename='debug.log', level=logging.DEBUG)
 
 
 def check_jump(instr):
@@ -49,30 +49,28 @@ def dead_code_eliminator(instructions):
             for index, instruction in enumerate(block):
                 
                 # look at instructions that use other variables. delete that from unused if they exist
-                #logging.debug("unused state: " + str(unused))
                 args = instruction.get("args", [])
                 for arg in args:
                     if arg in unused:
                         del unused[arg]
 
                 dest = instruction.get("dest")
-                logging.debug("dest: " + str(dest))
 
                 if dest:
-                    # if our variable was previously marked unused, it is used so remove
-                    logging.debug("unused current state: " + str(unused))
+                    # if our variable was previously marked unused, it is rewritten so remove
+                    #logging.debug("unused current state: " + str(unused))
                     if dest in unused:
                         instructions_to_remove.add(unused[dest])
-                        logging.debug("unused to remove " + str(unused[dest]))
+                        #logging.debug("unused to remove " + str(unused[dest]))
                     # update unused to current instruction
                     unused[dest] = index
             
-            #logging.debug(instructions_to_remove)
-
+            # create a new block without the instructions we wanna remove
             new_block = []
             for index, instruction in enumerate(block):
                 if index not in instructions_to_remove:
                     new_block.append(instruction)
+
             # update current block to the new block we made
             block = new_block
             if not instructions_to_remove:
@@ -84,7 +82,6 @@ def dead_code_eliminator(instructions):
 
 if __name__ == "__main__":
     prog = json.load(sys.stdin)
-    #logging.info(sys.stdin)
     for fn in prog["functions"]:
         fn["instrs"] = dead_code_eliminator(fn["instrs"]) 
     json.dump(prog, sys.stdout, indent=2)
