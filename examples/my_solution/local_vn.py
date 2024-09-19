@@ -57,19 +57,20 @@ def lvn(instructions):
                 else:
                     args.append(arg)
 
-            logging.debug(f"Looking at instruction: {inst}")
-            logging.debug(f"val_2_VNum is currently: {val_2_vNum}")
-            logging.debug(f"var_2_vNum is currently: {var_2_vNum}")
-            logging.debug(f"vNum_2_var is currently: {vNum_2_var}")
-
+            # logging.debug(f"Looking at instruction: {inst}")
+            # logging.debug(f"val_2_VNum is currently: {val_2_vNum}")
+            # logging.debug(f"var_2_vNum is currently: {var_2_vNum}")
+            # logging.debug(f"vNum_2_var is currently: {vNum_2_var}")
+            commutative = {"add", "mul", "and", "or", "xor"}
             # create a new value by packaging this instruction with the value numbers of its arguments
             # if we are dealing with consts, the way we save this is unique
             if inst.get("op") == "const":
                 value = (inst.get('op'), inst.get('value'))
-                logging.debug("value for const: " + str(value))
+            elif inst.get("op") in commutative:
+                # the order does not matter so we sort to find instructions that are the same, but different ordering
+                value = (inst.get("op"),) + tuple(sorted(args))
             else:
                 value = (inst.get("op"),) + tuple(args)
-                logging.debug("value for NON const: " + str(value))
 
             # look up the value number of this value
             vNum = val_2_vNum.get(value)
@@ -92,7 +93,6 @@ def lvn(instructions):
                 # check we have a destination
                 if inst.get("dest") in var_2_vNum:
                     # if dest is already in var_2_vNum, let's delete it 
-
                     previous_vNum = var_2_vNum[inst["dest"]]
 
                     if len(vNum_2_var[previous_vNum]) == 1:
@@ -100,11 +100,13 @@ def lvn(instructions):
                         old_value = vNum_2_val[previous_vNum]
                         del val_2_vNum[old_value]
                         del vNum_2_val[previous_vNum]
+                    # remove the previous instruction from our value number - variable lists
                     vNum_2_var[previous_vNum].remove(inst["dest"])
                     del var_2_vNum[inst["dest"]]
 
                 # update the variable at dest to point to our valNum
                 var_2_vNum[inst["dest"]] = vNum
+                # check whether we need to create a new list or append to the current
                 if vNum in vNum_2_var:
                     vNum_2_var[vNum].append(inst["dest"])
                 else:
