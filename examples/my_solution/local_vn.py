@@ -50,7 +50,12 @@ def lvn(instructions):
         for inst in block:
             # canonicalize the instruction's arguments by getting the 
             # value numbers currently held by those vars
-            args = [var_2_vNum[arg] for arg in inst.get("args", []) if arg in var_2_vNum]
+            args = []
+            for arg in inst.get("args", []):
+                if arg in var_2_vNum:
+                    args.append(var_2_vNum[arg])
+                else:
+                    args.append(arg)
 
             logging.debug(f"Looking at instruction: {inst}")
             logging.debug(f"val_2_VNum is currently: {val_2_vNum}")
@@ -64,6 +69,7 @@ def lvn(instructions):
                 logging.debug("value for const: " + str(value))
             else:
                 value = (inst.get("op"),) + tuple(args)
+                logging.debug("value for NON const: " + str(value))
 
             # look up the value number of this value
             vNum = val_2_vNum.get(value)
