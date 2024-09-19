@@ -42,6 +42,7 @@ def lvn(instructions):
     for block in blocks:
 
         val_2_vNum  = {} # the value we create --> value number
+        vNum_2_val = {}
         var_2_vNum = {} # variables --> value number
         vNum_2_var = {} # value number --> variables
         index = 0
@@ -51,13 +52,18 @@ def lvn(instructions):
             # value numbers currently held by those vars
             args = [var_2_vNum[arg] for arg in inst.get("args", []) if arg in var_2_vNum]
 
+            logging.debug(f"Looking at instruction: {inst}")
+            logging.debug(f"val_2_VNum is currently: {val_2_vNum}")
+            logging.debug(f"var_2_vNum is currently: {var_2_vNum}")
+            logging.debug(f"vNum_2_var is currently: {vNum_2_var}")
+
             # create a new value by packaging this instruction with the value numbers of its arguments
             # if we are dealing with consts, the way we save this is unique
             if inst.get("op") == "const":
                 value = (inst.get('op'), inst.get('value'))
+                logging.debug("value for const: " + str(value))
             else:
                 value = (inst.get("op"),) + tuple(args)
-            logging.debug(value)
 
             # look up the value number of this value
             vNum = val_2_vNum.get(value)
@@ -66,24 +72,37 @@ def lvn(instructions):
                 # we've never seen this value before, so lets create a new index and add it
                 vNum = index
                 val_2_vNum[value] = vNum
+                vNum_2_val[vNum] = value
                 index += 1
             else:
                 # we've seen this value before
                 # replace this instruction with an id and the arguments of the one we seen before
+                # logging.error(f"We saw Value number {vNum} before for instruction {inst}")
+                # logging.error(f"Our vnum2var map is {vNum_2_var}")
                 inst["op"] = "id"
-                inst["args"] = [vNum_2_var[vNum]]
+                inst["args"] = [vNum_2_var[vNum][0]]
 
             if "dest" in inst:
                 # check we have a destination
                 if inst.get("dest") in var_2_vNum:
-                    # if dest is already in vNum_2_var, let's delete it 
-                    temp = var_2_vNum[inst.get("dest")]
-                    if temp in vNum_2_var:
-                        del vNum_2_var[temp]
+                    # if dest is already in var_2_vNum, let's delete it 
+
+                    previous_vNum = var_2_vNum[inst["dest"]]
+
+                    if len(vNum_2_var[previous_vNum]) == 1:
+                        # this is the last instruction to have that value, we also remove it from val2Vnum
+                        old_value = vNum_2_val[previous_vNum]
+                        del val_2_vNum[old_value]
+                        del vNum_2_val[previous_vNum]
+                    vNum_2_var[previous_vNum].remove(inst["dest"])
+                    del var_2_vNum[inst["dest"]]
 
                 # update the variable at dest to point to our valNum
                 var_2_vNum[inst["dest"]] = vNum
-                vNum_2_var[vNum] = inst["dest"]
+                if vNum in vNum_2_var:
+                    vNum_2_var[vNum].append(inst["dest"])
+                else:
+                    vNum_2_var[vNum] = [inst["dest"]]
 
     return instructions
 
