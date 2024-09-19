@@ -1,0 +1,28 @@
+@main {
+  a: int = const 2;
+  b: int = const 4;
+  # eventually is dead code
+  c: int = const 6;
+  d: int = const 10;
+
+  # we can CSE this
+  sum1: int = add a b;
+  sum2: int = add a b;
+
+  # dead code
+  sum3: int = add b c;
+
+  # clobbered 1
+  sum1: int = const 0;
+
+  # we can CSE this
+  sum4: int = add a b;
+
+  # prove the sum1 updated
+  prod1: int = mul sum1 sum4;
+
+  # dead code
+  and1: int = and d d;
+
+  print prod1;
+}
