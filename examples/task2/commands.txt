@@ -1,0 +1,11 @@
+# example running brench
+cat ../benchmarks/core/birthday.bril | bril2json | python3 ../examples/task2/const_prop.py | bril2txt
+cat ../benchmarks/core/birthday.bril | bril2json | python3 ../examples/task2/const_prop.py | brili -p 23
+cat ../benchmarks/core/birthday.bril | bril2json | brili -p {args}
+
+cat ../benchmarks/core/relative-primes.bril | bril2json | python3 ../examples/task2/const_prop.py | brili -p
+
+# run examples
+cat ../test/df/cond-args.bril | bril2json | python3 const_prop.py | bril2txt
+cat ../test/df/cond.bril | bril2json | python3 const_prop.py | bril2txt
+cat ../test/df/fact.bril | bril2json | python3 const_prop.py | bril2txt
