@@ -116,7 +116,7 @@ def cfg_local_analysis(in_map_current, block):
                     # create new instruction
                     new_instruction = {}
                     new_instruction["op"] = "const"
-                    new_instruction["type"] = "bool" if isinstance(constant_fold_result, bool) else "int"
+                    new_instruction["type"] = instr["type"]
                     new_instruction["value"] = constant_fold_result
                     new_instruction["dest"] = instr["dest"]
 
@@ -137,7 +137,7 @@ def cfg_local_analysis(in_map_current, block):
                     # create new instruction
                     new_instruction = {}
                     new_instruction["op"] = "const"
-                    new_instruction["type"] = "bool" if isinstance(copied_value, bool) else "int"
+                    new_instruction["type"] = instr["type"]
                     new_instruction["value"] = copied_value
                     new_instruction["dest"] = instr["dest"]
                     
