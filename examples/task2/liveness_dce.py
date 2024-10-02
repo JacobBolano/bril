@@ -76,7 +76,7 @@ def create_cfg(blocks, label_to_block):
     return cfg
 
 
-def cfg_intersect_maps(successor_facts):
+def cfg_union_maps(successor_facts):
     # merge facts
     
     # set union
@@ -124,7 +124,7 @@ def dataflow_analysis(instructions):
         successor_facts = [in_map[s] for s in cfg[current]["successors"]]
         logging.debug(f"successor_facts at block {current} with successors {cfg[current]['successors']}: {successor_facts}")  
         # we interesect (union) the in facts of the successor blocks to find our current out  
-        out_map[current] = cfg_intersect_maps(successor_facts)
+        out_map[current] = cfg_union_maps(successor_facts)
 
         # we then find the in map by performing our transfer analysis
         new_facts = cfg_local_analysis(out_map[current], block)   

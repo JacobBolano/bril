@@ -125,8 +125,6 @@ def cfg_local_analysis(in_map_current, block):
                     block[i] = new_instruction
                 else:
                     new_facts[instr["dest"]] = '?'
-
-
             elif instr["op"] in {"not", "id"}:
                 if instr['args'][0] in new_facts and new_facts[instr['args'][0]] != '?':
                     # check that these argument exists in new_facts and then check that it is real (not ?)
@@ -154,37 +152,29 @@ def cfg_local_analysis(in_map_current, block):
 
 def cfg_intersect_maps(predecessor_facts):
     # merge facts
-
     if not predecessor_facts:
         return {}
-    
     # check if any of the predecessor facts are empty
     if any(d == {} for d in predecessor_facts):
         return {}
     
-    potential_output = {}
+    output = {}
 
     for fact in predecessor_facts:
         for key, value in fact.items():
             if value == '?':
-                potential_output[key] = '?'
+                output[key] = '?'
             else:
                 # if we already saw this key before
-                if key in potential_output:
+                if key in output:
                     # if the values are different, this variable is no longer constant
-                    if potential_output[key] != value:
-                        potential_output[key] = '?'
+                    if output[key] != value:
+                        output[key] = '?'
                     # otherwise we keep it
                 else:
                     # add to the map
-                    potential_output[key] = value
-    return potential_output
-    # final_output = {}
-    # for fact in potential_output:
-    #     if potential_output[fact] is not None:
-    #         final_output[fact] = potential_output[fact]   
-
-    # return final_output
+                    output[key] = value
+    return output
 
 def dataflow_analysis(instructions):        
     blocks, label_to_block = instruct_to_blocks(instructions)
@@ -201,7 +191,6 @@ def dataflow_analysis(instructions):
         block = blocks[current]
 
         # merge: A way to relate the input/output facts of a block to the inputs/outputs of its neighbors.
-        # we are merging from predecessors
         predecessor_facts = [out_map[p] for p in cfg[current]["predecessors"]]
         # logging.debug(f"predecessor facts at block {current} with predecessors {cfg[current]['predecessors']}: {predecessor_facts}")    
         in_map[current] = cfg_intersect_maps(predecessor_facts)
