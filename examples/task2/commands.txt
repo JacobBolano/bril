@@ -14,3 +14,8 @@ cat ../test/df/fact.bril | bril2json | python3 const_prop.py | bril2txt
 cat ../test/df/cond-args.bril | bril2json | python3 liveness_dce.py | bril2txt
 cat ../test/df/cond.bril | bril2json | python3 liveness_dce.py | bril2txt
 cat ../test/df/fact.bril | bril2json | python3 liveness_dce.py | bril2txt
+
+# run the generic one
+cat ../test/df/cond-args.bril | bril2json | python3 generic_dataflow_user.py | bril2txt
+cat ../test/df/cond.bril | bril2json | python3 generic_dataflow_user.py | bril2txt
+cat ../test/df/fact.bril | bril2json | python3 generic_dataflow_user.py | bril2txt

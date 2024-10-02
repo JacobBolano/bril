@@ -1,4 +1,4 @@
-benchmarks = '../../benchmarks/long/*.bril'
+benchmarks = '../../benchmarks/float/*.bril'
 extract = 'total_dyn_inst: (\d+)'
 
 [runs.baseline]
@@ -7,9 +7,9 @@ pipeline = [
   "brili -p {args}",
 ]
 
-[runs.const_prop_fold]
+[runs.const_prop]
 pipeline = [
   "bril2json",
-  "python3 ../../examples/task2/const_prop.py",
+  "python3 ../../examples/task2/generic_dataflow_user.py",
   "brili -p {args}",
 ]

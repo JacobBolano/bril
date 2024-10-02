@@ -1,4 +1,4 @@
-benchmarks = '../benchmarks/mixed/*.bril'
+benchmarks = '../../benchmarks/mixed/*.bril'
 extract = 'total_dyn_inst: (\d+)'
 
 [runs.baseline]
@@ -10,6 +10,6 @@ pipeline = [
 [runs.liveness_dce]
 pipeline = [
   "bril2json",
-  "python3 ../examples/task2/liveness_dce.py",
+  "python3 ../../examples/task2/liveness_dce.py",
   "brili -p {args}",
 ]
