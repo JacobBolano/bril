@@ -98,6 +98,7 @@ def constant_folder(op, args):
         return args[0] >= args[1]
     # if we get a weird instruction
     return None
+
 def cfg_local_analysis(in_map_current, block):
     # input: in_map_current - map of facts at the beginning of the block
     # output: new_facts - map of facts at the end of the block
