@@ -1,4 +1,4 @@
-benchmarks = '../benchmarks/core/*.bril'
+benchmarks = '../benchmarks/mixed/*.bril'
 extract = 'total_dyn_inst: (\d+)'
 
 [runs.baseline]
