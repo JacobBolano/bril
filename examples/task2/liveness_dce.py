@@ -77,8 +77,6 @@ def create_cfg(blocks, label_to_block):
 
 
 def cfg_union_maps(successor_facts):
-    # merge facts
-    
     # set union
     output = set()
 
@@ -123,7 +121,7 @@ def dataflow_analysis(instructions):
         # we are merging from the in maps of successors (backwards)
         successor_facts = [in_map[s] for s in cfg[current]["successors"]]
         logging.debug(f"successor_facts at block {current} with successors {cfg[current]['successors']}: {successor_facts}")  
-        # we interesect (union) the in facts of the successor blocks to find our current out  
+        # we merge (union) the in facts of the successor blocks to find our current out  
         out_map[current] = cfg_union_maps(successor_facts)
 
         # we then find the in map by performing our transfer analysis
@@ -134,9 +132,8 @@ def dataflow_analysis(instructions):
         if in_map[current] != new_facts:
             in_map[current] = new_facts
             worklist.extend(cfg[current]["predecessors"])
-        
-        # update the block
-        #blocks[current] = new_block
+    
+    # update our blocks by performing a better version of DCE
     updated_blocks = super_dead_code_eliminator(in_map, out_map, blocks)
     show_maps(in_map, out_map, updated_blocks)
     return rebuild_instructions(updated_blocks)
