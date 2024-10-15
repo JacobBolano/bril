@@ -1,0 +1,16 @@
+# example running brench
+cat ../../benchmarks/core/mod_inv.bril | bril2json | python3 ../../examples/task3/convert_ssa.py | bril2txt
+cat ../../benchmarks/core/mod_inv.bril | bril2json | python3 ../../examples/to_ssa.py | bril2txt
+
+cat ../benchmarks/core/quadratic.bril | bril2json | brili -p
+
+cat ../benchmarks/core/birthday.bril | bril2json | brili -p {args}
+
+cat ../benchmarks/core/relative-primes.bril | bril2json | python3 ../examples/task2/const_prop.py | brili -p
+
+# run examples
+cat ../test/ssa/if-orig.bril | bril2json | python3 convert_ssa.py | bril2txt
+cat test/ssa/if-orig.bril | bril2json | python3 to_ssa.py | bril2txt
+
+cat ../test/ssa/loop-orig.bril | bril2json | python3 convert_ssa.py | bril2txt
+cat ../test/ssa/loop-orig.bril | bril2json | python3 convert_ssa.py | brili -p
