@@ -1,6 +1,6 @@
 # example running brench
-cat ../../benchmarks/core/mod_inv.bril | bril2json | python3 ../../examples/task3/convert_ssa.py | bril2txt
-cat ../../benchmarks/core/mod_inv.bril | bril2json | python3 ../../examples/to_ssa.py | bril2txt
+cat ../../benchmarks/mixed/mat-inv.bril | bril2json | python3 ../../examples/task3/convert_ssa.py | bril2txt
+cat ../../benchmarks/mixed/mat-inv.bril | bril2json | python3 ../../examples/to_ssa.py | bril2txt
 
 cat ../benchmarks/core/quadratic.bril | bril2json | brili -p
 

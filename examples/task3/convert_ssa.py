@@ -49,6 +49,37 @@ def add_pseudo_labels(blocks, label_to_block):
             current_pseudos += 1
     return blocks, label_to_block
 
+#ensures every cfg has single starting point
+def add_entry_blocks(blocks, label_to_block):
+    initial_label = blocks[0][0]["label"]
+
+    incoming_edge_first_block = False
+    for block in blocks:
+        for instr in block:
+            if "labels" in instr and initial_label in instr["labels"]:
+                # we need to add an entry block
+                incoming_edge_first_block = True
+                break
+    
+    if incoming_edge_first_block:
+        # fix label to block
+        for block in blocks:
+            block_label = block[0]["label"]
+            label_to_block[block_label] += 1
+
+        new_label = {
+            "label" : "jacob_entry_label"
+        }
+        jmp_instr = {
+            "op" : "jmp",
+            "labels" : [initial_label]
+        }
+        new_block = [new_label, jmp_instr]
+        blocks.insert(0, new_block)
+        label_to_block[new_label["label"]] = 0
+        return blocks, label_to_block
+    else:
+        return blocks, label_to_block
 
 def create_cfg(blocks, label_to_block):
     cfg = defaultdict(lambda: {"predecessors": [], "successors": []})
@@ -116,15 +147,29 @@ def find_dominators(blocks, cfg):
     return dominators
     
 def find_dom_front(blocks, cfg, dominators):
+    
     dominance_frontier = {block_index: set() for block_index, block in enumerate(blocks)}
     # maps block_index: set of block indices in dominance frontier of block
+
+    # JUST ADDED
+    block_indices = dominators.keys()
+    strictly_dominators = {block_index: [] for block_index in block_indices} # maps block_index: the block_indices that strictly dominate it
+    for block_b in block_indices:
+        # find strictly dominators of block b
+        for block_a in block_indices:
+            if block_a == block_b:
+                continue
+            
+            if block_a in dominators[block_b]:
+                strictly_dominators[block_b].append(block_a)
+
     for i_a, block_a in enumerate(blocks):
         for i_b, block_b in enumerate(blocks):
-            if i_a == i_b:
-                continue
+            # if i_a == i_b:
+            #     continue
             # check if A does not dominate B
 
-            if i_a not in dominators[i_b]:
+            if i_a not in strictly_dominators[i_b]:
                 # now check if A does dominate a predecessor of B
 
                 pred_b = cfg[i_b]["predecessors"]
@@ -208,16 +253,19 @@ def convert_ssa(instructions):
     blocks, label_to_block = instruct_to_blocks(instructions)
     # we need to fix labels
     blocks, label_to_block = add_pseudo_labels(blocks, label_to_block)
-    logging.debug(f"this is all the instructions {instructions}")
-    logging.debug(f"this is the corresponding blocks {blocks}")
+    blocks, label_to_block = add_entry_blocks(blocks, label_to_block)
+    # logging.debug(f"blocks {blocks}")
+    # logging.debug(f"label to block {label_to_block}")
     cfg = create_cfg(blocks, label_to_block)
+    # logging.debug(f"CFG {cfg}")
     dominators = find_dominators(blocks, cfg) # maps block_index: set of dominating blocks_indices
-    logging.debug(f"this is dominators at the start {dominators}")
+    # logging.debug(f"this is incorrect dominators at the start {dominators}")
     dominance_frontier = find_dom_front(blocks, cfg, dominators) # maps block_index: set of block indices in dominance frontier of block
+    # logging.debug(f"this is incorrect dominance frontier {dominance_frontier}")
     dom_tree = find_dom_tree(dominators) # maps block_index: the block_indices it immediately dominates
     definitions = find_all_defs(instructions, blocks) # maps variable: indices of blocks that define that variable
     variables = definitions.keys() # all possible variables
-    logging.debug(f"i believe this is all the definitions: {definitions}")
+    # logging.debug(f"i believe this is all the definitions: {definitions}")
     #phis = {block_index: {} for block_index, _ in enumerate(blocks)} # maps a block_index to a list of its phi functions (variable, type: list of (variable, source))
     phis = {block_index: {} for block_index, _ in enumerate(blocks)} 
     # maps a block_index to a list of its phi functions (variable: definition, type, args: list[variable, source]))
@@ -231,25 +279,18 @@ def convert_ssa(instructions):
                 add_to_current_defs = deepcopy(definitions[var])
                 converged = True
                 for defining_block_index in definitions[var]:
-                    logging.debug(f"this is dominance frontier {dominance_frontier}")
                     for block_index in dominance_frontier[defining_block_index]:
+                        # logging.debug(f"defining blocks (Defs) {definitions[var]}")
+                        # logging.debug(f"this is dominance frontier {dominance_frontier} when we insert phi at block index {block_index} for var {var}")
                         type = instr["type"]
                         phis = insert_phi(var, type, block_index, phis)
-                        # formatted_instruction = {
-                        #     "dest": var,
-                        #     "type": type,
-                        #     "op": "phi",
-                        #     "args": [],
-                        #     "labels": []
-                        # }
-                        # blocks[block_index].insert(1, formatted_instruction)
                         add_to_current_defs.add(block_index)
 
                 if add_to_current_defs != definitions[var]:
                     definitions[var].update(add_to_current_defs)
                     converged = False
                 
-    logging.debug(f"this is phis after trivial {phis}")
+    # logging.debug(f"this is phis after trivial {phis}")
     # rename variables
     stack_names = {var: [var] for var in variables} # maps variables to a stack of their names?
     var_to_count = {var: 0 for var in variables}
@@ -274,7 +315,7 @@ def convert_ssa(instructions):
                 stack_names[original_var].append(fresh)
 
         for instr in block:
-            logging.debug(f"looking at instruction {instr} and our stack is {stack_names}")
+            # logging.debug(f"looking at instruction {instr} and our stack is {stack_names}")
             # update args for normal instructions
             if "args" in instr and "op" in instr and instr["op"] != "jmp":
                 new_args = [stack_names[arg][-1] if arg in stack_names else arg for arg in instr["args"]]
@@ -295,20 +336,18 @@ def convert_ssa(instructions):
                 # generate fresh name
                 fresh = fresh_name(instr["dest"])
                 stack_names[instr["dest"]].append(fresh)
-                logging.debug(f"just added {fresh} to stack {stack_names}")
+                # logging.debug(f"just added {fresh} to stack {stack_names}")
                 instr["dest"] = fresh
         for succ in cfg[block_index]["successors"]:
             for original_var in phis[succ].keys():
                 phi_function = phis[succ][original_var]
+                #var_dest = phi_function["destination"] if phi_function["destination"] != "TRIVIAL" else original_var
                 phi_function_arguments = phi_function["arguments"]
                 # update the arg in this phi corresponding to block to stack[v].top
-                # if phis[succ][phi] == "TRIVIAL":
-                #     # was previously trivial, so we make a new list
-                #     phis[succ][phi] = []
-
-                # logging.debug(f"v is {v}")
-
-                argument_name = stack_names[original_var][-1]
+                # logging.debug(f"Looking at phi function {phi_function} with original var {original_var}")
+                # logging.debug(f"but also stack is {stack_names}")
+                # logging.debug(f" and our block is {block}")
+                argument_name = stack_names[original_var][-1] #if len(stack_names[original_var]) > 1 else "__undefined"
                 arguments_label = block[0]['label']
                 phi_function_arguments.append((argument_name, arguments_label))
         # rename child in dominator tree
@@ -322,7 +361,7 @@ def convert_ssa(instructions):
     # we call rename on the first block which calls subsequent blocks
     rename(0)
     # we then fix blocks ot actually insert the phis
-    logging.debug(f"phis {phis}")
+    # logging.debug(f"phis {phis}")
     for block_index in phis:
         list_phi_functions = phis[block_index]
         for original_variable in list_phi_functions:

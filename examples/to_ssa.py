@@ -6,6 +6,8 @@ from cfg import block_map, successors, add_terminators, add_entry, reassemble
 from form_blocks import form_blocks
 from dom import get_dom, dom_fronts, dom_tree
 
+import logging
+logging.basicConfig(filename='debug.log', level=logging.DEBUG)
 
 def def_blocks(blocks):
     """Get a map from variable names to defining blocks.
@@ -122,8 +124,9 @@ def func_to_ssa(func):
     add_terminators(blocks)
     succ = {name: successors(block[-1]) for name, block in blocks.items()}
     dom = get_dom(succ, list(blocks.keys())[0])
-
+    logging.debug(f"correct dominators {dom}")
     df = dom_fronts(dom, succ)
+    logging.debug(f"correct df {df}")
     defs = def_blocks(blocks)
     types = get_types(func)
     arg_names = {a['name'] for a in func['args']} if 'args' in func else set()
