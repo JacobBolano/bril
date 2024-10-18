@@ -151,7 +151,7 @@ def find_dom_front(blocks, cfg, dominators):
     dominance_frontier = {block_index: set() for block_index, block in enumerate(blocks)}
     # maps block_index: set of block indices in dominance frontier of block
 
-    # JUST ADDED
+    # JUST ADDED - NOW REMOVED
     block_indices = dominators.keys()
     strictly_dominators = {block_index: [] for block_index in block_indices} # maps block_index: the block_indices that strictly dominate it
     for block_b in block_indices:
@@ -166,13 +166,14 @@ def find_dom_front(blocks, cfg, dominators):
     for i_a, block_a in enumerate(blocks):
         for i_b, block_b in enumerate(blocks):
             # if i_a == i_b:
-            #     continue
+            #      continue
             # check if A does not dominate B
 
             if i_a not in strictly_dominators[i_b]:
                 # now check if A does dominate a predecessor of B
 
                 pred_b = cfg[i_b]["predecessors"]
+                # logging.debug(f"pred of {i_b} is {pred_b}")
 
                 a_doms_b_pred = False
                 for p_b in pred_b:
@@ -249,8 +250,10 @@ def insert_phi(var, type, block_index, phis):
     return phis
 
 
-def convert_ssa(instructions):        
+def convert_ssa(instructions, arguments):   
+    arg_names = [argument["name"] for argument in arguments] if arguments else []
     blocks, label_to_block = instruct_to_blocks(instructions)
+    # logging.debug(instructions)
     # we need to fix labels
     blocks, label_to_block = add_pseudo_labels(blocks, label_to_block)
     blocks, label_to_block = add_entry_blocks(blocks, label_to_block)
@@ -259,7 +262,7 @@ def convert_ssa(instructions):
     cfg = create_cfg(blocks, label_to_block)
     # logging.debug(f"CFG {cfg}")
     dominators = find_dominators(blocks, cfg) # maps block_index: set of dominating blocks_indices
-    # logging.debug(f"this is incorrect dominators at the start {dominators}")
+    #logging.debug(f"this is incorrect dominators at the start {dominators}")
     dominance_frontier = find_dom_front(blocks, cfg, dominators) # maps block_index: set of block indices in dominance frontier of block
     # logging.debug(f"this is incorrect dominance frontier {dominance_frontier}")
     dom_tree = find_dom_tree(dominators) # maps block_index: the block_indices it immediately dominates
@@ -279,6 +282,7 @@ def convert_ssa(instructions):
                 add_to_current_defs = deepcopy(definitions[var])
                 converged = True
                 for defining_block_index in definitions[var]:
+                    # logging.debug(f"our dominance frontier at {defining_block_index} is {dominance_frontier[defining_block_index]}")
                     for block_index in dominance_frontier[defining_block_index]:
                         # logging.debug(f"defining blocks (Defs) {definitions[var]}")
                         # logging.debug(f"this is dominance frontier {dominance_frontier} when we insert phi at block index {block_index} for var {var}")
@@ -289,11 +293,13 @@ def convert_ssa(instructions):
                 if add_to_current_defs != definitions[var]:
                     definitions[var].update(add_to_current_defs)
                     converged = False
-                
+    # logging.debug(f"this is the dominators: {dominators}")
+    # logging.debug(f"this is the dominance frontier {dominance_frontier}")            
     # logging.debug(f"this is phis after trivial {phis}")
     # rename variables
     stack_names = {var: [var] for var in variables} # maps variables to a stack of their names?
     var_to_count = {var: 0 for var in variables}
+
     def fresh_name(original_name):
         var_to_count[original_name] += 1
         var_num = var_to_count[original_name]
@@ -304,7 +310,7 @@ def convert_ssa(instructions):
         block = blocks[block_index]
         old_stack = {k: list(v) for k, v in stack_names.items()}
 
-         # update phi destination names
+        #update phi destination names
         if phis[block_index]:
             phis_list = phis[block_index]
             for original_var in phis_list.keys():
@@ -339,6 +345,8 @@ def convert_ssa(instructions):
                 # logging.debug(f"just added {fresh} to stack {stack_names}")
                 instr["dest"] = fresh
         for succ in cfg[block_index]["successors"]:
+            succs = cfg[block_index]["successors"]
+            to_remove = []
             for original_var in phis[succ].keys():
                 phi_function = phis[succ][original_var]
                 #var_dest = phi_function["destination"] if phi_function["destination"] != "TRIVIAL" else original_var
@@ -347,9 +355,21 @@ def convert_ssa(instructions):
                 # logging.debug(f"Looking at phi function {phi_function} with original var {original_var}")
                 # logging.debug(f"but also stack is {stack_names}")
                 # logging.debug(f" and our block is {block}")
-                argument_name = stack_names[original_var][-1] #if len(stack_names[original_var]) > 1 else "__undefined"
+                # logging.debug(f" and our successors at this block is {succs}")
+
+                # we never defined in this block
+                if len(stack_names[original_var]) <= 1:
+                    # but this is one of our arguments to the method
+                    if original_var in arg_names:
+                        argument_name = original_var
+                    else:
+                        argument_name = "__undefined"
+                else:
+                    argument_name = stack_names[original_var][-1]
                 arguments_label = block[0]['label']
                 phi_function_arguments.append((argument_name, arguments_label))
+            # for removal in to_remove:
+            #     del phis[succ][removal]
         # rename child in dominator tree
         for child in dom_tree[block_index]:
             rename(child)
@@ -389,5 +409,5 @@ if __name__ == "__main__":
     prog = json.load(sys.stdin)
 
     for fn in prog["functions"]:
-        fn["instrs"] = convert_ssa(fn["instrs"]) 
+        fn["instrs"] = convert_ssa(fn["instrs"], fn["args"] if "args" in fn else None) 
     json.dump(prog, sys.stdout, indent=2)
