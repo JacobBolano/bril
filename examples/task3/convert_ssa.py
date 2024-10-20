@@ -253,12 +253,10 @@ def insert_phi(var, type, block_index, phis):
 def convert_ssa(instructions, arguments):   
     arg_names = [argument["name"] for argument in arguments] if arguments else []
     blocks, label_to_block = instruct_to_blocks(instructions)
-    # logging.debug(instructions)
+    logging.debug(instructions)
     # we need to fix labels
     blocks, label_to_block = add_pseudo_labels(blocks, label_to_block)
     blocks, label_to_block = add_entry_blocks(blocks, label_to_block)
-    # logging.debug(f"blocks {blocks}")
-    # logging.debug(f"label to block {label_to_block}")
     cfg = create_cfg(blocks, label_to_block)
     # logging.debug(f"CFG {cfg}")
     dominators = find_dominators(blocks, cfg) # maps block_index: set of dominating blocks_indices
@@ -269,7 +267,6 @@ def convert_ssa(instructions, arguments):
     definitions = find_all_defs(instructions, blocks) # maps variable: indices of blocks that define that variable
     variables = definitions.keys() # all possible variables
     # logging.debug(f"i believe this is all the definitions: {definitions}")
-    #phis = {block_index: {} for block_index, _ in enumerate(blocks)} # maps a block_index to a list of its phi functions (variable, type: list of (variable, source))
     phis = {block_index: {} for block_index, _ in enumerate(blocks)} 
     # maps a block_index to a list of its phi functions (variable: definition, type, args: list[variable, source]))
 
@@ -349,7 +346,6 @@ def convert_ssa(instructions, arguments):
             to_remove = []
             for original_var in phis[succ].keys():
                 phi_function = phis[succ][original_var]
-                #var_dest = phi_function["destination"] if phi_function["destination"] != "TRIVIAL" else original_var
                 phi_function_arguments = phi_function["arguments"]
                 # update the arg in this phi corresponding to block to stack[v].top
                 # logging.debug(f"Looking at phi function {phi_function} with original var {original_var}")
@@ -368,8 +364,7 @@ def convert_ssa(instructions, arguments):
                     argument_name = stack_names[original_var][-1]
                 arguments_label = block[0]['label']
                 phi_function_arguments.append((argument_name, arguments_label))
-            # for removal in to_remove:
-            #     del phis[succ][removal]
+                
         # rename child in dominator tree
         for child in dom_tree[block_index]:
             rename(child)
