@@ -60,11 +60,20 @@ def fix_labels(index_changed, label_to_block):
             label_to_block[label] += 1
     return label_to_block
 
-def fix_loops(index_changed, loops):
+def fix_loops(index_changed, loops, loop_key_changed):
     new_loops = {}
 
     for loop_key in loops:
         loop = loops[loop_key]
+        if loop_key == loop_key_changed:
+            new_loops[loop_key] = {
+                "loop_components" : loop["loop_components"],
+                "header" : loop["header"],
+                "preheader" : loop["preheader"],
+                "latch" : loop["latch"],
+                "exits" : "TRIVIAL"
+            }
+            continue
         loop_components = loop["loop_components"]
         header = loop["header"]
         preheader = loop["preheader"]
@@ -73,17 +82,20 @@ def fix_loops(index_changed, loops):
 
         if start <= index_changed <= latch:
             logging.debug(f" had to update loop due to index in betweeen")
+
+            # we check if its at header or preheader - this shouldnt happen
+            if index_changed == header:
+                logging.debug(f"this shouldnt happen. Our index changed was {index_changed}, and the loop was previously {loop_components}. we then are changing our header {header}")
+                header += 1
+            if preheader != "TRIVIAL" and index_changed == preheader:
+                logging.debug(f"this shouldnt happen. Our index changed was {index_changed}, and the loop was previously {loop_components}. we then are changing our preheader {preheader}")
+                preheader += 1
+
             # our index changed is in betweeen - its part of this loop
             # this means our latch increased by 1 and our total components did as well
             latch += 1
             loop_components.append(latch)
-            # we check if its at header or preheader - this shouldnt happen
-            if index_changed == header:
-                logging.debug(f"this shouldnt happen")
-                header += 1
-            if preheader != "TRIVIAL" and index_changed == preheader:
-                logging.debug(f"this shouldnt happen")
-                preheader += 1
+            
         elif start > index_changed:
             logging.debug(f" had to update loop due to index before")
             # index changed is before our loop - we must shift everything in the loop
@@ -142,7 +154,7 @@ def normalize_loops(loops, blocks, label_to_block, cfg):
             #logging.debug(f"Inserted a pre header {pre_header}")
 
             # update loops
-            loops = fix_loops(index_pre_header, loops)
+            loops = fix_loops(index_pre_header, loops, loop_key)
         else:
             index_pre_header = preds_header[0]
         
@@ -212,7 +224,7 @@ def find_licm(instructions):
     # NOTE: if we want just normalized loops we return now
     # return rebuild_instructions(blocks)
     # NOTE: otherwise we find licm and move them   
-    blocks = perform_licm(normalized_loops, blocks)
+    #blocks = perform_licm(normalized_loops, blocks)
     return rebuild_instructions(blocks)
 
 if __name__ == "__main__":
