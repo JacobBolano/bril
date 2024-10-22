@@ -1,19 +1,24 @@
 # example running brench
+cat ../../benchmarks/core/collatz.bril | bril2json | python3 ../../examples/task3/convert_ssa.py | python3 ../../examples/task3/licm.py | bril2txt
+collatz
+
 cat ../../benchmarks/core/relative-primes.bril | bril2json | python3 ../../examples/task3/convert_ssa.py | bril2txt
 cat ../../benchmarks/core/mat-inv.bril | bril2json | python3 ../../examples/task3/convert_ssa.py | bril2txt
 
-cat ../../benchmarks/mem/two-sum.bril | bril2json | python3 ../../examples/task3/norm_loops.py | bril2txt
-
+cat ../../benchmarks/mem/two-sum.bril | bril2json | python3 ../../examples/task3/licm.py | bril2txt
 
 cat ../../benchmarks/mixed/mat-inv.bril | bril2json | python3 ../../examples/to_ssa.py | bril2txt
 
 cat ../benchmarks/core/quadratic.bril | bril2json | brili -p
-
 cat ../benchmarks/core/birthday.bril | bril2json | brili -p {args}
 
+# run examples both
+cat ../test/dom/loopcond.bril | bril2json | python3 convert_ssa.py | python3 licm.py | brili -p
+cat ../test/dom/while.bril | bril2json | python3 convert_ssa.py | python3 licm.py | brili -p
+
 # run examples licm
-cat ../test/dom/loopcond.bril | bril2json | python3 norm_loops.py | bril2txt
-cat ../test/dom/while.bril | bril2json | python3 norm_loops.py | bril2txt
+cat ../test/dom/loopcond.bril | bril2json | python3 licm.py | bril2txt
+cat ../test/dom/while.bril | bril2json | python3 licm.py | bril2txt
 
 # run examples SSA
 cat ../test/ssa/if-orig.bril | bril2json | python3 convert_ssa.py | bril2txt

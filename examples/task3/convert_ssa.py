@@ -253,7 +253,7 @@ def insert_phi(var, type, block_index, phis):
 def convert_ssa(instructions, arguments):   
     arg_names = [argument["name"] for argument in arguments] if arguments else []
     blocks, label_to_block = instruct_to_blocks(instructions)
-    logging.debug(instructions)
+    #logging.debug(instructions)
     # we need to fix labels
     blocks, label_to_block = add_pseudo_labels(blocks, label_to_block)
     blocks, label_to_block = add_entry_blocks(blocks, label_to_block)
