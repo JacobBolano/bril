@@ -173,7 +173,6 @@ def find_dom_front(blocks, cfg, dominators):
                 # now check if A does dominate a predecessor of B
 
                 pred_b = cfg[i_b]["predecessors"]
-                # logging.debug(f"pred of {i_b} is {pred_b}")
 
                 a_doms_b_pred = False
                 for p_b in pred_b:
@@ -253,20 +252,15 @@ def insert_phi(var, type, block_index, phis):
 def convert_ssa(instructions, arguments):   
     arg_names = [argument["name"] for argument in arguments] if arguments else []
     blocks, label_to_block = instruct_to_blocks(instructions)
-    #logging.debug(instructions)
     # we need to fix labels
     blocks, label_to_block = add_pseudo_labels(blocks, label_to_block)
     blocks, label_to_block = add_entry_blocks(blocks, label_to_block)
     cfg = create_cfg(blocks, label_to_block)
-    # logging.debug(f"CFG {cfg}")
     dominators = find_dominators(blocks, cfg) # maps block_index: set of dominating blocks_indices
-    #logging.debug(f"this is incorrect dominators at the start {dominators}")
     dominance_frontier = find_dom_front(blocks, cfg, dominators) # maps block_index: set of block indices in dominance frontier of block
-    # logging.debug(f"this is incorrect dominance frontier {dominance_frontier}")
     dom_tree = find_dom_tree(dominators) # maps block_index: the block_indices it immediately dominates
     definitions = find_all_defs(instructions, blocks) # maps variable: indices of blocks that define that variable
     variables = definitions.keys() # all possible variables
-    # logging.debug(f"i believe this is all the definitions: {definitions}")
     phis = {block_index: {} for block_index, _ in enumerate(blocks)} 
     # maps a block_index to a list of its phi functions (variable: definition, type, args: list[variable, source]))
 
@@ -290,9 +284,7 @@ def convert_ssa(instructions, arguments):
                 if add_to_current_defs != definitions[var]:
                     definitions[var].update(add_to_current_defs)
                     converged = False
-    # logging.debug(f"this is the dominators: {dominators}")
-    # logging.debug(f"this is the dominance frontier {dominance_frontier}")            
-    # logging.debug(f"this is phis after trivial {phis}")
+                    
     # rename variables
     stack_names = {var: [var] for var in variables} # maps variables to a stack of their names?
     var_to_count = {var: 0 for var in variables}
@@ -348,10 +340,6 @@ def convert_ssa(instructions, arguments):
                 phi_function = phis[succ][original_var]
                 phi_function_arguments = phi_function["arguments"]
                 # update the arg in this phi corresponding to block to stack[v].top
-                # logging.debug(f"Looking at phi function {phi_function} with original var {original_var}")
-                # logging.debug(f"but also stack is {stack_names}")
-                # logging.debug(f" and our block is {block}")
-                # logging.debug(f" and our successors at this block is {succs}")
 
                 # we never defined in this block
                 if len(stack_names[original_var]) <= 1:
@@ -376,7 +364,6 @@ def convert_ssa(instructions, arguments):
     # we call rename on the first block which calls subsequent blocks
     rename(0)
     # we then fix blocks ot actually insert the phis
-    # logging.debug(f"phis {phis}")
     for block_index in phis:
         list_phi_functions = phis[block_index]
         for original_variable in list_phi_functions:
