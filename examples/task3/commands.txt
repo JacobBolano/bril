@@ -1,5 +1,5 @@
 # example running brench
-cat ../../benchmarks/core/collatz.bril | bril2json | python3 ../../examples/task3/convert_ssa.py | python3 ../../examples/task3/licm.py | bril2txt
+cat ../../benchmarks/core/sum-divisors.bril | bril2json | python3 ../../examples/task3/convert_ssa.py | python3 ../../examples/task3/licm.py | bril2txt
 collatz
 
 cat ../../benchmarks/core/relative-primes.bril | bril2json | python3 ../../examples/task3/convert_ssa.py | bril2txt

@@ -1,9 +1,10 @@
-benchmarks = '../../benchmarks/core/*.bril'
+benchmarks = '../../benchmarks/mixed/*.bril'
 extract = 'total_dyn_inst: (\d+)'
 
-[runs.baseline]
+[runs.actual_baseline]
 pipeline = [
   "bril2json",
+  "python3 ../../examples/task3/convert_ssa.py",
   "brili -p {args}",
 ]
 
