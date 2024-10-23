@@ -60,13 +60,11 @@ def add_entry_blocks(blocks, label_to_block):
                 # we need to add an entry block
                 incoming_edge_first_block = True
                 break
-    
     if incoming_edge_first_block:
         # fix label to block
         for block in blocks:
             block_label = block[0]["label"]
             label_to_block[block_label] += 1
-
         new_label = {
             "label" : "jacob_entry_label"
         }
@@ -151,7 +149,6 @@ def find_dom_front(blocks, cfg, dominators):
     dominance_frontier = {block_index: set() for block_index, block in enumerate(blocks)}
     # maps block_index: set of block indices in dominance frontier of block
 
-    # JUST ADDED - NOW REMOVED
     block_indices = dominators.keys()
     strictly_dominators = {block_index: [] for block_index in block_indices} # maps block_index: the block_indices that strictly dominate it
     for block_b in block_indices:
@@ -165,9 +162,6 @@ def find_dom_front(blocks, cfg, dominators):
 
     for i_a, block_a in enumerate(blocks):
         for i_b, block_b in enumerate(blocks):
-            # if i_a == i_b:
-            #      continue
-            # check if A does not dominate B
 
             if i_a not in strictly_dominators[i_b]:
                 # now check if A does dominate a predecessor of B
@@ -262,7 +256,7 @@ def convert_ssa(instructions, arguments):
     definitions = find_all_defs(instructions, blocks) # maps variable: indices of blocks that define that variable
     variables = definitions.keys() # all possible variables
     phis = {block_index: {} for block_index, _ in enumerate(blocks)} 
-    # maps a block_index to a list of its phi functions (variable: definition, type, args: list[variable, source]))
+    # maps a block_index to a list of its phi functions (variable: destination, type, args: list[variable, source]))
 
     # first insert trivial phis
     for instr in instructions:
@@ -275,8 +269,6 @@ def convert_ssa(instructions, arguments):
                 for defining_block_index in definitions[var]:
                     # logging.debug(f"our dominance frontier at {defining_block_index} is {dominance_frontier[defining_block_index]}")
                     for block_index in dominance_frontier[defining_block_index]:
-                        # logging.debug(f"defining blocks (Defs) {definitions[var]}")
-                        # logging.debug(f"this is dominance frontier {dominance_frontier} when we insert phi at block index {block_index} for var {var}")
                         type = instr["type"]
                         phis = insert_phi(var, type, block_index, phis)
                         add_to_current_defs.add(block_index)
@@ -334,8 +326,6 @@ def convert_ssa(instructions, arguments):
                 # logging.debug(f"just added {fresh} to stack {stack_names}")
                 instr["dest"] = fresh
         for succ in cfg[block_index]["successors"]:
-            succs = cfg[block_index]["successors"]
-            to_remove = []
             for original_var in phis[succ].keys():
                 phi_function = phis[succ][original_var]
                 phi_function_arguments = phi_function["arguments"]

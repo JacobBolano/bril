@@ -34,7 +34,6 @@ def find_loops(back_edges, cfg):
                 # we already visited or its the header which we ignore
                 continue
             visited.add(current_node)
-
             # we then need to check the predecessors of current node (working backwards)
             for pred in cfg[current_node]["predecessors"]:
                 nodes_to_explore.append(pred)
@@ -105,7 +104,7 @@ def normalize_loops(loops, blocks, label_to_block, cfg):
         curr_loop = loops[loop_key]
         cur_loop_header = curr_loop["header"]
 
-        # pre header potentials are a predecessor but they are also earlier than the header block
+        # pre header potentials are a predecessor but they cant be in a loop where the header is current header
         all_loops = set()
         for lp_key in loop_keys:
             if loops[lp_key]["header"] == cur_loop_header:
@@ -238,7 +237,6 @@ def perform_licm(normalized_loops, blocks):
         
 
     for var in safe_to_hoist:
-        # instruction_to_hoist = rebuild_instruction(instruction_tuple)
         instruction_tuple = safe_to_hoist[var]
         loop_key = instruction_tuple[0]
         block = instruction_tuple[1]
