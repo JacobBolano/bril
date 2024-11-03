@@ -1,0 +1,14 @@
+# example running brench
+
+
+cat ../../benchmarks/mem/major-elm.bril | bril2json | python3 ../../examples/task4/alias.py | bril2txt
+
+
+cat ../benchmarks/core/quadratic.bril | bril2json | brili -p
+cat ../benchmarks/core/birthday.bril | bril2json | brili -p {args}
+
+# run examples both
+cat ../test/mem/deadstore.bril | bril2json | python3 ../../examples/task4/alias.py | bril2txt
+
+cat ../test/dom/while.bril | bril2json | python3 convert_ssa.py | python3 licm.py | brili -p
+
