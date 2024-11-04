@@ -1,4 +1,4 @@
-benchmarks = '../../benchmarks/float/*.bril'
+benchmarks = '../../benchmarks/mem/*.bril'
 extract = 'total_dyn_inst: (\d+)'
 
 [runs.baseline]

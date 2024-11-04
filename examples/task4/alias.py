@@ -84,17 +84,17 @@ def transfer_analysis(in_map_current, block, block_index):
                 if var not in new_facts:
                     new_facts[var] = set()
                 if instr["op"] == "alloc":
-                    new_facts[var].add((block_index, instr_index))
+                    new_facts[var].add(("none", instr_index))
                 elif instr["op"] == "id" and "ptr" in instr["type"]:
                     # logging.debug(f"potential alias for instruction {instr}")
                     if instr["args"][0] in new_facts:
-                        new_facts[var].update(new_facts[instr["args"][0]])
+                        new_facts[var].add((instr["args"][0], instr_index))
                 elif instr["op"] == "ptradd":
                     # logging.debug(f"potential alias for instruction {instr} and facts are {in_map_current}")
                     if instr["args"][0] in new_facts:
-                        new_facts[var].update(new_facts[instr["args"][0]])
+                        new_facts[var].add((instr["args"][0], instr_index))
                 elif instr["op"] == "load":
-                    new_facts[var].add("all_memory_locations")
+                    new_facts[var].add(("all_memory_locations", instr_index))
 
     return new_facts
 
@@ -126,7 +126,7 @@ def dataflow_analysis(instructions, arguments):
 
     # we don't know anything about the incoming function arguments
     # Ensure that our analysis is something conservative: all function arguments pointing to all memory locations
-    default_map_for_arguments = {arg: {"all_memory_locations"} for arg in arg_names}
+    default_map_for_arguments = {arg: {("all_memory_locations", 0)} for arg in arg_names}
 
     # fact: empty map
     in_map = [{} for _ in range(len(blocks))]
@@ -155,7 +155,7 @@ def dataflow_analysis(instructions, arguments):
             worklist.extend(cfg[current]["successors"])
     
     # logging.debug(f"in map {in_map}")
-    # logging.debug(f"out map {out_map}")
+    logging.debug(f"out map {out_map}")
 
     updated_blocks = dead_store_elimination(blocks, in_map, out_map)
 
@@ -163,32 +163,40 @@ def dataflow_analysis(instructions, arguments):
 
 def dead_store_elimination(blocks, in_map, out_map):
     updated_blocks = []
-    stored_vars = {block: set() for block in range(len(blocks))}
+    stored_vars = {block: {} for block in range(len(blocks))}
     for i,block in enumerate(blocks):
         current_outs = copy.deepcopy(out_map[i])
         updated_block = copy.deepcopy(block)
 
-        for instr in reversed(block):
+        for instr_index in range(len(block) - 1, -1, -1):
+            instr = block[instr_index]
             # check if the instruction is a store at an address that might alias
             if "op" in instr and instr["op"] == "store":
                 target_store = instr["args"][0]
 
                 alias = False
-                for var, memory_locations in current_outs.items():
+                for var, list_memory_locations in current_outs.items():
                     if var == target_store:
-                        continue
-                    if "all_memory_locations" in memory_locations:
-                        alias = True
-                    if current_outs[target_store] & memory_locations:
-                        alias = True
+                        for memory_location_tuple in list_memory_locations:
+                            _, store_index = memory_location_tuple
+                            if instr_index < store_index and target_store in stored_vars[i] and store_index < stored_vars[i][target_store]:
+                                alias = True
+                                break
+                    for memory_location_tuple in list_memory_locations:
+                        alias_name, store_index = memory_location_tuple
+                        if ("all_memory_locations" == alias_name) or (target_store == alias_name):
+                            # we know there is an alias but we need to make sure its between our two stores
+                            # logging.debug(f"may alias for {target_store} with tuple {memory_location_tuple}")
+                            if instr_index < store_index and target_store in stored_vars[i] and store_index < stored_vars[i][target_store]:
+                                alias = True
+                                break
                 if not alias and target_store in stored_vars[i]:
-                    # logging.debug(f"deleting {instr} as alias is {alias} outs for this is at {current_outs[target_store]}")
+                    # logging.debug(f"deleting {instr} as alias is {alias} outs for this is at {current_outs[target_store]} and stored vars {stored_vars}")
                     updated_block.remove(instr)
                 else:
                     # logging.debug(f"we couldn't delete {instr} as alias is {alias} outs for this is at {current_outs[target_store]}")
                     # our variable is in current outs but we are storing it.
-                    stored_vars[i].add(target_store)
-
+                    stored_vars[i][target_store] = instr_index
         updated_blocks.append(updated_block)
     return updated_blocks
 
