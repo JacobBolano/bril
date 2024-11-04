@@ -1,0 +1,36 @@
+@main() {
+  arr: ptr<int> = alloc size;
+  five: int = const 5;
+  ten: int = const 10;
+  store arr five;
+  sum: int = add five ten;
+  arr_2: ptr<int> = alloc size;
+  store arr_2 sum;
+  sum2: int = add sum ten;
+  store arr ten;
+  print arr;
+.begin_complex_id_alias:
+  two: int = const 2;
+  three: int = const 3;
+  arr_3: ptr<int> = alloc size;
+  store arr_3 three;
+  arr_3_copy: ptr<int> = id arr_3;
+  store arr_3 two;
+  print arr_3;
+.begin_complex_ptradd_alias:
+  one: int = const 1;
+  four: int = const 4;
+  arr_4: ptr<int> = alloc size;
+  store arr_4 one;
+  arr_4_with_offset: ptr<int> = ptradd arr_4 one;
+  store arr_4 four;
+  print arr_4;
+.begin_complex_ptradd_alias:
+  eight: int = const 8;
+  zero: int = const 0;
+  arr_5: ptr<int> = alloc size;
+  store arr_5 eight;
+  load_ptr: ptr<int> = load arr_5;
+  store arr_5 zero;
+  print arr_5;
+}

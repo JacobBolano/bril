@@ -154,8 +154,8 @@ def dataflow_analysis(instructions, arguments):
             out_map[current] = new_facts
             worklist.extend(cfg[current]["successors"])
     
-    logging.debug(f"in map {in_map}")
-    logging.debug(f"out map {out_map}")
+    # logging.debug(f"in map {in_map}")
+    # logging.debug(f"out map {out_map}")
 
     updated_blocks = dead_store_elimination(blocks, in_map, out_map)
 
@@ -163,6 +163,7 @@ def dataflow_analysis(instructions, arguments):
 
 def dead_store_elimination(blocks, in_map, out_map):
     updated_blocks = []
+    stored_vars = {block: set() for block in range(len(blocks))}
     for i,block in enumerate(blocks):
         current_outs = copy.deepcopy(out_map[i])
         updated_block = copy.deepcopy(block)
@@ -171,7 +172,6 @@ def dead_store_elimination(blocks, in_map, out_map):
             # check if the instruction is a store at an address that might alias
             if "op" in instr and instr["op"] == "store":
                 target_store = instr["args"][0]
-                # logging.debug(f"target store {target_store}")
 
                 alias = False
                 for var, memory_locations in current_outs.items():
@@ -181,12 +181,13 @@ def dead_store_elimination(blocks, in_map, out_map):
                         alias = True
                     if current_outs[target_store] & memory_locations:
                         alias = True
-                if not alias and "STORED" in current_outs[target_store]:
-                    logging.debug(f"deleting {instr} as alias is {alias} outs for this is at {current_outs[target_store]}")
+                if not alias and target_store in stored_vars[i]:
+                    # logging.debug(f"deleting {instr} as alias is {alias} outs for this is at {current_outs[target_store]}")
                     updated_block.remove(instr)
                 else:
+                    # logging.debug(f"we couldn't delete {instr} as alias is {alias} outs for this is at {current_outs[target_store]}")
                     # our variable is in current outs but we are storing it.
-                    current_outs[target_store].add("STORED")
+                    stored_vars[i].add(target_store)
 
         updated_blocks.append(updated_block)
     return updated_blocks
